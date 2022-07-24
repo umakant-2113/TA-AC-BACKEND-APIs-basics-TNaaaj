@@ -3,6 +3,25 @@ var router = express.Router();
 let Country = require('../modal/Country');
 let State = require('../modal/State');
 
+  // total state in a country
+
+  router.get("/:id/state",(req,res,next)=>{
+    let id=req.params.id;
+    Country.findById(id).populate("state").exec((err,country)=>{
+      console.log(country.state)
+      if(err) return next(err);
+      res.json(country)
+    })
+  })
+
+// list all religions present in entire country dataaset.
+router.get("/allreligion",(req,res,next)=>{
+  Country.distinct("religion",(err,religion)=>{
+    if(err) return next(err);
+    res.json(religion)
+  })
+})
+
 // assecending order of population
 router.get("/data", (req,res,next)=>{
   Country.find({},(err,country)=>{
@@ -34,19 +53,19 @@ router.get("/continent",(req,res,next)=>{
   
   
     //  list countries based on population.
+    router.get("/population",(req,res,next)=>{
+      let population=req.query;
+      Country.find({},{$lte : population},(err,country)=>{
+        if(err) return next(err);
+        res.json(country)
+      })
+    })
     
-  // update/remove a state from any country
- 
-
-
-
-
-
-
+    
 /* GET Country isting. */
 router.get('/', (req, res, next) => {
   Country.find({}, (err, country) => {
-    // country.sort((a,b)=>a.population-b.population)
+    console.log(country)
     if (err) return next(err);
     res.json(country);
   });
@@ -76,8 +95,10 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   let id = req.params.id;
   Country.findByIdAndDelete(id, (err, country) => {
-    if (err) return next(err);
+State.deleteMany({},(err,state)=>{
+  if (err) return next(err);
     res.json(country);
+})
   });
 });
 
@@ -99,15 +120,7 @@ router.post('/:id', (req, res, next) => {
     });
   });
 
-  // total state in a country
 
-  router.get("/:id/state",(req,res,next)=>{
-    let id=req.params.id;
-    Country.findById(id).populate("state").exec((err,country)=>{
-      if(err) return next(err);
-      res.json(country)
-    })
-  })
 
   // neighbour country of a country
 
@@ -118,16 +131,5 @@ router.post('/:id', (req, res, next) => {
       res.json(country)
     })
     })
-// list all religions present in entire country dataaset.
-router.get("/allreligion",(req,res,next)=>{
-  Country.distinct("religion",(err,religion)=>{
-    if(err) return next(err);
-    res.json(religion)
-  })
-})
-
-
-  
-
 
 module.exports = router;

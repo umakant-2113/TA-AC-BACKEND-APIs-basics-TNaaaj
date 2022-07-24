@@ -61,6 +61,14 @@ router.get("/population",(req,res,next)=>{
         })
     })
 
+    // which state inside which country
+    router.get("/:id/country",(req,res,next)=>{
+let id=req.params.id;
+State.findById(id).populate("country").exec((err,state)=>{
+    if(err) return next(err);
+    res.json(state)
+})
+    })
 
 
 
